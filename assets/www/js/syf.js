@@ -1,15 +1,25 @@
-var sapiUrl = 'http://sapi.edelight.biz/api/?Output=json';
+var sapiUrl = 'http://sapi.edelight.biz/api/?SecretKey=q756wwalabkbyz580mtk8chuqo50fg9l&Locale=de_DE&Operation=Itemsearch&AccessKey=g7ch8ydjicqr6ibvcfa3f9q3561drh0v&Output=json';
 var imgParam = 'resized/normal/220/';
 
 syf = {
 	init: function(){
-		syf.pageInit();
+		syf.baseInit();
+		syf.router();
+	},
+	
+	baseInit: function(){
 		$("#searchRow").hide();
 		$("#searchBtn").on('tap', function(){
 			$('#searchRow').toggle();
 			$("#searchBtn").toggleClass('ui-btn-active');
 		});
-	},
+		$('#searchDoBtn').on('tap', function(){
+			var str = $.trim($('#searchInput').val());
+			if(str != ''){
+				syf.search(str);
+			}
+		});
+	}, 
 	
 	urlVars: function(){
 	    var vars = [], hash;
@@ -22,47 +32,74 @@ syf = {
 	    }
 	    return vars;
 	},
-		
-	pageInit: function(){
-	    var ecatn = syf.urlVars()['ecatn'];
-	    if(!ecatn){
-	    	ecatn = '27weky56okebmq37';
-	    }
-	    
-	    $('#navbar a[data-ecatn="'+ecatn+'"]').addClass('ui-btn-active');
-	    
-		syf.loadProducts('&Items=30&TypedTags=ecatn%3A('+ecatn+')');
+	
+	router: function(){
+		var parameters = syf.urlVars();
+		if("search" in parameters){
+			syf.search(parameters);
+		} else if("ecatn" in parameters){
+			syf.category(parameters);
+		} else {
+			syf.category({"ecatn": "27weky56okebmq37"});
+		}
 	},
 	
-	loadProducts: function(attributes){
-		$.getJSON(sapiUrl+attributes, function(data){
-			$('#products').empty();
-			$.each(data.itemsearchresponse.items.item , function(key, item){
-				if(key%3) {
-					if(key%3 == 1){
-						className = "b";
-					} else {
-						className = "c";
-					}
-				} else {
-					className = "a";
-				}
-				var img = item.imagebaseurl+imgParam+item.ein+'.jpg';
-				$('#products').append('<div class="ui-block-'+className+'">'
-										+'<a data-rel="dialog" data-transition="pop" href="'+item.detailpageurl+'" rel="external">'
-										+'<img src="'+img+'" />'
-										+'<span class="brand">'
-										+item.brand
-										+'</span>'
-										+'<span class="name">'
-										+item.title
-										+'</span></a></div>');
-			});
+	search: function(queryParameter){
+		$('#navbar a').removeClass('ui-btn-active');
+		q = '&Items=30&Query='+encodeURIComponent(queryParameter);
+		syf.loadProducts(q, syf.fillCategory);
+	},
+	
+	fillSearch: function(data){
+		
+	},
+	
+	category: function(parameters){
+		var ecatn = parameters['ecatn'];
+		var query = '&Items=30&TypedTags=ecatn%3A('+ecatn+')';
+		
+		$('#navbar a[data-ecatn="'+ecatn+'"]').addClass('ui-btn-active');
+		syf.loadProducts(query, syf.fillCategory);
+	},
+	
+	fillCategory: function(data){
+		$('#products').empty();
+		$.each(data.itemsearchresponse.items.item , function(key, item){
+			className = syf.getClassName(key);
+			
+			var img = item.imagebaseurl+imgParam+item.ein+'.jpg';
+			$('#products').append('<div class="ui-block-'+className+'">'
+									+'<a data-rel="dialog" data-transition="pop" href="'+item.detailpageurl+'" rel="external">'
+									+'<img src="'+img+'" />'
+									+'<span class="brand">'
+									+item.brand
+									+'</span>'
+									+'<span class="name">'
+									+item.title
+									+'</span></a></div>');
 		});
+	},
+	
+	getClassName:function(key){
+		if(key%3) {
+			if(key%3 == 1){
+				return "b";
+			} else {
+				return "c";
+			}
+		} else {
+			return "a";
+		}
+	},
+		
+	loadProducts: function(attributes, callback){
+		alert(sapiUrl+attributes);
+		$.getJSON(sapiUrl+attributes, callback);
 	
 	}
 	
 }
+
 $().ready(function(){
 	syf.init();
 });
