@@ -1,4 +1,4 @@
-var sapiUrl = 'http://sapi.edelight.biz/api/?SecretKey=q756wwalabkbyz580mtk8chuqo50fg9l&Locale=de_DE&Operation=Itemsearch&AccessKey=g7ch8ydjicqr6ibvcfa3f9q3561drh0v&Output=json';
+var sapiUrl = 'http://sapi.edelight.biz/api/?Locale=de_DE&Operation=Itemsearch&Output=json';
 var imgParam = 'resized/normal/220/';
 
 syf = {
@@ -70,7 +70,7 @@ syf = {
 			var img = item.imagebaseurl+imgParam+item.ein+'.jpg';
 			$('#products').append('<div class="ui-block-'+className+'">'
 									+'<a data-rel="dialog" data-transition="pop" href="'+item.detailpageurl+'" rel="external">'
-									+'<img src="'+img+'" />'
+									+'<img class="product" src="'+img+'" />'
 									+'<span class="brand">'
 									+item.brand
 									+'</span>'
@@ -93,7 +93,6 @@ syf = {
 	},
 		
 	loadProducts: function(attributes, callback){
-		alert(sapiUrl+attributes);
 		$.getJSON(sapiUrl+attributes, callback);
 	
 	}

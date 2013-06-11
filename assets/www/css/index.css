@@ -6,3 +6,7 @@ span.name {
 #products div {
 text-align: center;
 }
+img.product{
+	width: 220px;
+	height: 220px;
+}
